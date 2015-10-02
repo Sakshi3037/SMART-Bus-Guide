@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +19,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -38,22 +41,24 @@ public class Details extends Activity{
         {
             source = i.getStringExtra("valSource");
             dest = i.getStringExtra("valDest");
-            _searchResult = d.searchRoute(source, dest);
+             _searchResult = d.searchRoute(source, dest);
         }
-        else if(data_type.equals("source"))
+        else if(data_type.equals("source") || data_type.equals("dest"))
         {
             _searchResult = d.searchSource();
-            dest = i.getStringExtra("valDest");
-            if(!(dest.isEmpty())) {
-                _searchResult.remove(dest);
+            if(data_type.equals("source"))
+            {
+                dest = i.getStringExtra("valDest");
+                if(!(dest.isEmpty())) {
+                    _searchResult.remove(dest);
+                }
             }
-        }
-        else if(data_type.equals("dest"))
-        {
-            _searchResult = d.searchSource();
-            source = i.getStringExtra("valSource");
-            if(!(source.isEmpty())) {
-                _searchResult.remove(source);
+            else
+            {
+                source = i.getStringExtra("valSource");
+                if(!(source.isEmpty())) {
+                    _searchResult.remove(source);
+                }
             }
         }
         listView = (android.widget.ListView) findViewById(R.id.list);
