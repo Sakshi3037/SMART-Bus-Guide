@@ -3,19 +3,30 @@ package com.example.admin.ctu;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import java.io.IOException;
 
 public class Home extends Activity{
     TextView source, dest;
+    SharedPreferences sp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,11 +47,34 @@ public class Home extends Activity{
         mActionBar.setDisplayShowHomeEnabled(true);
         source = (TextView) findViewById(R.id.source);
         dest = (TextView) findViewById(R.id.dest);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        int value = sp.getInt("Version", 1);
+        if(value == 1) {
+            {
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putInt("Version", 1);
+                editor.commit();
+            }
+        }
+        DefaultHttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet("http://nodejs-wirelessnetwork.rhcloud.com/isChanged");
+        HttpResponse httpResponse = null;
+        try {
+            httpResponse = httpClient.execute(httpGet);
+            HttpEntity httpEntity = httpResponse.getEntity();
+            String responseString = EntityUtils.toString(httpEntity, "UTF-8");
+            updateDatabase(responseString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_map, menu);
         return true;
     }
@@ -55,17 +89,32 @@ public class Home extends Activity{
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void updateDatabase(String serverVer) throws JSONException {
+        database d = new database(getBaseContext());
+        d.open();
+        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        int v = sp.getInt("Version", 0);
+        int ver = Integer.parseInt(String.valueOf(serverVer.charAt(0)));
+        if(ver != v)
+        {
+            d.updateDb();
+            extDatabase ed = new extDatabase(d);
+            ed.updateDatabase();
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putInt("Version", ver);
+            editor.commit();
+            Toast.makeText(getBaseContext(),"Updated", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
     public void search(View view)
     {
         String s = source.getText().toString();

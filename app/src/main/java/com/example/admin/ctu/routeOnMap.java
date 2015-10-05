@@ -18,6 +18,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 public class routeOnMap extends FragmentActivity implements LocationListener {
@@ -42,8 +44,7 @@ public class routeOnMap extends FragmentActivity implements LocationListener {
 
         if (map != null) {
             database d = new database(getBaseContext());
-            d.open();
-           coordinates = d.getCoordinates(route_no);
+            coordinates = d.getCoordinates(route_no);
             LatLng position = new LatLng(Double.valueOf(coordinates.get(count).toString()),
                     Double.valueOf(coordinates.get(count+1).toString()));
             while(count < coordinates.size())
