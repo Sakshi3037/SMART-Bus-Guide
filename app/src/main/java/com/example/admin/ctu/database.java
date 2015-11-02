@@ -102,6 +102,37 @@ public class database{
         return _searchResult;
     }
 
+    public ArrayList searchAllRoute() {
+        _searchResult = new ArrayList();
+
+        try {
+            //open database to query
+            open();
+            Cursor cursor = ctuNew.query("bus_route",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+            if (cursor.moveToFirst()) {
+                do {
+                    String route = String.valueOf(cursor.getString(2));
+                    //List<String> list = Arrays.asList(route.split(","));
+
+                        _searchResult.add("Route No :" + String.valueOf(cursor.getString(1)) +
+                                "\nTimings : " + String.valueOf(cursor.getString(3)) +
+                                "\nFrequency : " + String.valueOf(cursor.getString(4)));
+
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        } catch (Exception ex) {
+            System.out.println("DatabaseHelper.search()- : ex " + ex.getClass() + ", " + ex.getMessage());
+        }
+        return _searchResult;
+    }
+
     public ArrayList searchSource() {
         _searchResult = new ArrayList();
         int count = 0;
