@@ -161,7 +161,6 @@ public class Home extends ListActivity {
             img1.setText(route_no);
 
             return row;
-
         }
     }
 
