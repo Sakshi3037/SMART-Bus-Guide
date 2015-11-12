@@ -80,6 +80,7 @@ public class map extends FragmentActivity implements LocationListener{
             }
             position = new LatLng(jsonArray.getJSONObject(0).getDouble("gps_lat"),
                     jsonArray.getJSONObject(0).getDouble("gps_lng"));
+
             is = getAssets().open("bump.json");
             size = is.available();
             buffer = new byte[size];
