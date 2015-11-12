@@ -1,16 +1,36 @@
 package com.example.admin.ctu;
 
 import android.app.ActionBar;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class map extends FragmentActivity implements LocationListener{
     private GoogleMap map;
@@ -29,25 +49,81 @@ public class map extends FragmentActivity implements LocationListener{
                 .getMap();
 
         if (map != null) {
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, this);
-            if (locationManager != null) {
-                location = locationManager
-                        .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (location != null) {
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    map.setMyLocationEnabled(true);
-                    LatLng position = new LatLng(latitude, longitude);
-                    map.addMarker(new MarkerOptions().position(position).title("HERE"));
-                }
-            }
+            addHeatMap();
         }
     }
+
+    /**
+     * This  method will add a heat map displaying road roughness on a google map along with the
+     * markers of two different colors: Red markers display road bumps whereas green markers display
+     * potholes.
+     */
+    public void addHeatMap() {
+        List<LatLng> list = new ArrayList<LatLng>();
+        HeatmapTileProvider provider;
+        TileOverlay overlay;
+        LatLng position = null;
+        try {
+            String json = null;
+            InputStream is = getAssets().open("roughness.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+            JSONArray jsonArray = new JSONArray(json);
+            for(int i = 0; i < jsonArray.length(); i++)
+            {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                LatLng latLng = new LatLng(jsonObject.getDouble("gps_lat"), jsonObject.getDouble("gps_lng"));
+                list.add(latLng);
+            }
+            position = new LatLng(jsonArray.getJSONObject(0).getDouble("gps_lat"),
+                    jsonArray.getJSONObject(0).getDouble("gps_lng"));
+            is = getAssets().open("bump.json");
+            size = is.available();
+            buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+            jsonArray = new JSONArray(json);
+            for(int i = 0; i < jsonArray.length(); i++)
+            {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                LatLng latLng = new LatLng(jsonObject.getDouble("gps_lat"), jsonObject.getDouble("gps_lng"));
+                map.addMarker(new MarkerOptions().position(latLng));
+            }
+            is = getAssets().open("potholes.json");
+            size = is.available();
+            buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+            jsonArray = new JSONArray(json);
+            for(int i = 0; i < jsonArray.length(); i++)
+            {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                LatLng latLng = new LatLng(jsonObject.getDouble("gps_lat"), jsonObject.getDouble("gps_lng"));
+                map.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            }
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        provider = new HeatmapTileProvider.Builder()
+                .data(list)
+                .build();
+        provider.setRadius(10);
+        overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 12));
+    }
+
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Details/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement

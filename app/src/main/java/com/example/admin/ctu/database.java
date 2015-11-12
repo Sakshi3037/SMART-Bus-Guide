@@ -87,7 +87,6 @@ public class database{
             if (cursor.moveToFirst()) {
                 do {
                     String route = String.valueOf(cursor.getString(2));
-                    //List<String> list = Arrays.asList(route.split(","));
                     if (route.contains(s) && route.contains(d)) {
                         _searchResult.add("Route No :" + String.valueOf(cursor.getString(1)) +
                                 "\nTimings : " + String.valueOf(cursor.getString(3)) +

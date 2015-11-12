@@ -39,14 +39,10 @@ public class SearchRoute extends Activity implements OnClickListener,
         btnSearch = (Button) findViewById(R.id.btnSearch);
         btnLeft = (Button) findViewById(R.id.btnLeft);
         mtxt = (EditText) findViewById(R.id.edSearch);
-
-
-
         database d = new database(getBaseContext());
         d.open();
         Intent i = getIntent();
         final String data_type = i.getStringExtra("search");
-
         mAllData = d.searchSource();
             if(data_type.equals("source"))
             {
@@ -62,22 +58,16 @@ public class SearchRoute extends Activity implements OnClickListener,
                     mAllData.remove(source);
                 }
             }
-
-
-
-
         mtxt.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before,
                                       int count) {
-
             }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
                                           int after) {
-
             }
 
             @Override
@@ -149,7 +139,6 @@ public class SearchRoute extends Activity implements OnClickListener,
     public void onItemClick(AdapterView<?> arg0, View arg1, int position,
                             long arg3) {
         String str = mAdapter.getItem(position);
-
         Intent intent = new Intent();
         intent.putExtra("result", str);
         setResult(Activity.RESULT_OK, intent);

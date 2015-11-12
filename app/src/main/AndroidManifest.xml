@@ -15,39 +15,41 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/icon"
-        android:label="@string/app_name"
-         >
+        android:icon="@drawable/icon1"
+        android:label="@string/app_name" >
         <activity
             android:name=".map"
-            android:label="@string/title_activity_map" >
+            android:label="CTU" >
         </activity>
-
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBjUsh-PqpEVqg63FLy8YmAjJ_OjF5jJBc" />
 
         <activity
             android:name=".emergency"
-            android:label="@string/title_activity_emergency" >
+            android:label="CTU" >
         </activity>
         <activity
-            android:name=".Home"
-            android:label="@string/app_name" >
+            android:name=".routeOnMap"
+            android:label="CTU" >
+        </activity>
+        <activity
+            android:name=".SearchRoute"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MyGreenTheme" >
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="CTU"
+            android:theme="@style/Theme.myTheme" >
+        </activity>
+        <activity
+            android:name=".SplashActivity"
+            android:label="CTU">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".routeOnMap"
-            android:label="@string/title_activity_route_on_map" >
-        </activity>
-        <activity
-            android:theme="@style/Theme.MyGreenTheme"
-
-            android:name=".SearchRoute"
-            android:label="@string/app_name" >
         </activity>
     </application>
 

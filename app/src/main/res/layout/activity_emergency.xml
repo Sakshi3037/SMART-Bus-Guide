@@ -4,15 +4,16 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.admin.ctu.emergency">
+    tools:context="com.example.admin.ctu.emergency"
+    android:background="#205F68">
      <EditText
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
          android:minHeight="200dp"
          android:gravity="top"
+         android:textColor="#ffffff"
          android:id="@+id/comment"
          android:hint="Add your comment"
-         android:textAlignment="viewEnd"
          />
     <Button
         android:layout_width="wrap_content"
@@ -22,7 +23,9 @@
         android:singleLine="false"
         android:layout_alignTop="@+id/button3"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:background="#ffffff"
+        android:textColor="#000000" />
 
     <Button
         android:layout_width="wrap_content"
@@ -32,6 +35,8 @@
         android:layout_below="@+id/comment"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="74dp" />
+        android:layout_marginTop="74dp"
+        android:background="#ffffff"
+        android:textColor="#000000" />
 
 </RelativeLayout>

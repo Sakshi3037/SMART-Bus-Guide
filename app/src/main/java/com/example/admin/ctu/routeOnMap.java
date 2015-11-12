@@ -3,11 +3,15 @@ package com.example.admin.ctu;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,16 +21,24 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class routeOnMap extends FragmentActivity implements LocationListener {
     String route_no;
     private GoogleMap map;
     double latitude;
     double longitude;
+    ArrayList<LatLng> positions = new ArrayList<>();
+    LatLng position;
     ArrayList coordinates = new ArrayList();
     int count = 0;
     @Override
@@ -39,27 +51,124 @@ public class routeOnMap extends FragmentActivity implements LocationListener {
         ActionBar mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                 .getMap();
-
-        if (map != null) {
-            database d = new database(getBaseContext());
-            coordinates = d.getCoordinates(route_no);
-            LatLng position = new LatLng(Double.valueOf(coordinates.get(count).toString()),
-                    Double.valueOf(coordinates.get(count+1).toString()));
+        database d = new database(getBaseContext());
+        coordinates = d.getCoordinates(route_no);
+        if(map != null)
+        {
             while(count < coordinates.size())
             {
                 latitude = Double.valueOf(coordinates.get(count).toString());
                 longitude = Double.parseDouble(coordinates.get(count + 1).toString());
-                map.setMyLocationEnabled(true);
                 position = new LatLng(latitude, longitude);
+                positions.add(position);
                 map.addMarker(new MarkerOptions().position(position).title(coordinates.get(count + 2).toString()));
                 count = count + 3;
             }
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(position ,12));
+            int j;
+            for (int i = 0; i < positions.size(); i++) {
+                if (i == positions.size() - 1) {
+                    j = 0;
+                } else {
+                    j = i + 1;
+                }
+                String url = makeURL(positions.get(i).latitude,
+                        positions.get(i).longitude,
+                        positions.get(j).latitude,
+                        positions.get(j).longitude);
+                JSONParser jParser = new JSONParser();
+                String json = jParser.getJSONFromUrl(url);
+                drawPath(json);
+            }
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 12));
         }
     }
 
+    /**
+     * This method will draw path on google map.
+     * @param result: Result is a string response returned by the google direction API.
+     */
+    public void drawPath(String  result) {
+
+        try {
+            final JSONObject json = new JSONObject(result);
+            JSONArray routeArray = json.getJSONArray("routes");
+            JSONObject routes = routeArray.getJSONObject(0);
+            JSONObject overviewPolylines = routes.getJSONObject("overview_polyline");
+            String encodedString = overviewPolylines.getString("points");
+            List<LatLng> list = decodePoly(encodedString);
+            Polyline line = map.addPolyline(new PolylineOptions()
+                            .addAll(list)
+                            .width(12)
+                            .color(Color.parseColor("#05b1fb"))//Google maps blue color
+                            .geodesic(true)
+            );
+        }
+        catch (JSONException e) {
+        }
+    }
+    private List<LatLng> decodePoly(String encoded) {
+
+        List<LatLng> poly = new ArrayList<LatLng>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng( (((double) lat / 1E5)),
+                    (((double) lng / 1E5) ));
+            poly.add(p);
+        }
+
+        return poly;
+    }
+
+    /**
+     * This function will make the url that we will send to get Direction API response.
+     * @param sourcelat: latitude of source gps coordinate
+     * @param sourcelog: longitude of source gps coordinate
+     * @param destlat: latitide of destination gps coordinate
+     * @param destlog: longitude of destination gps coordinate
+     * @return: URL that we will send to get Direction API Response.
+     */
+    public String makeURL (double sourcelat, double sourcelog, double destlat, double destlog ){
+        StringBuilder urlString = new StringBuilder();
+        urlString.append("https://maps.googleapis.com/maps/api/directions/json");
+        urlString.append("?origin=");// from
+        urlString.append(Double.toString(sourcelat));
+        urlString.append(",");
+        urlString
+                .append(Double.toString(sourcelog));
+        urlString.append("&destination=");// to
+        urlString
+                .append(Double.toString( destlat));
+        urlString.append(",");
+        urlString.append(Double.toString(destlog));
+        urlString.append("&sensor=true&mode=driving&alternatives=true");
+        urlString.append("&key=AIzaSyA4J7e1kQ6IkdrZqIK9BCgfg48YQE6wvGA");
+        return urlString.toString();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

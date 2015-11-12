@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="White">#FFFFFF</color>
-    <color name="green">#2579BF</color>
+    <color name="Black">#000000</color>
+    <color name="green">#205F68</color>
+    <color name="list_item_back_pressed">#2B2F3E</color>
+    <color name="primary_red">#FF3554</color>
 </resources>
 
