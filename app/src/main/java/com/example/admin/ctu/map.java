@@ -36,8 +36,6 @@ public class map extends FragmentActivity implements LocationListener{
     private GoogleMap map;
     double latitude;
     double longitude;
-    LocationManager locationManager;
-    Location location;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +61,8 @@ public class map extends FragmentActivity implements LocationListener{
         HeatmapTileProvider provider;
         TileOverlay overlay;
         LatLng position = null;
-        try {
+        try
+        {
             String json = null;
             InputStream is = getAssets().open("roughness.json");
             int size = is.available();
