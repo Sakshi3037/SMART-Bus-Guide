@@ -1,0 +1,116 @@
+<!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/drawer_layout"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    tools:context="com.example.admin.ctu.MainActivity">
+
+    <!-- As the main content view, the view below consumes the entire
+         space available using match_parent in both dimensions. -->
+    <FrameLayout android:id="@+id/container" android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#205F68"
+            android:orientation="vertical"
+            android:clickable="true">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:id="@+id/linearLayout">
+            <FrameLayout
+                android:id="@+id/sourceLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="45dp"
+                android:padding="5dp"
+                android:background="@android:color/white"
+                >
+                <TextView
+                    android:id="@+id/sourceLeft"
+                    android:text=""
+                    android:hint="Source"
+                    android:textSize="20dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#d3d3d3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"/>
+                <TextView
+                    android:id="@+id/sourceRight"
+                    android:text=""
+                    android:textSize="20dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#d3d3d3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"/>
+            </FrameLayout>
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#f7f7f7" />
+            <FrameLayout
+                android:id="@+id/destinationLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="45dp"
+                android:padding="5dp"
+                android:background="@android:color/white">
+                <TextView
+                    android:id="@+id/destLeft"
+                    android:text=""
+                    android:hint="Destination"
+                    android:textColor="#000000"
+                    android:textSize="20dp"
+                    android:textColorHint="#d3d3d3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"/>
+                <TextView
+                    android:id="@+id/destRight"
+                    android:text=""
+                    android:textColor="#000000"
+                    android:textSize="20dp"
+                    android:textColorHint="#d3d3d3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"/>
+            </FrameLayout>
+            <Button
+                android:id="@+id/search"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/destinationLayout"
+                android:layout_marginTop="10dp"
+                android:text="Search"
+                android:textColor="#ffffff"
+                android:onClick="search"
+                android:background="#2B2F3E" />
+
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/linearLayout"
+            android:layout_marginTop="30dp">
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@android:id/list"
+                android:background="#205F68" />
+        </RelativeLayout>
+    </RelativeLayout>
+    </FrameLayout>
+
+
+    <fragment android:id="@+id/navigation_drawer"
+        android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
+        android:layout_gravity="start" android:name="com.example.admin.ctu.NavigationDrawerFragment"
+        tools:layout="@layout/fragment_navigation_drawer" />
+
+</android.support.v4.widget.DrawerLayout>
